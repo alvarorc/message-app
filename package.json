@@ -10,6 +10,7 @@
     "dev": "cross-env NODE_ENV=development DEBUG=message-app:server,message-app:mongodb nodemon ./bin/server.js"
   },
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "~1.18.2",
     "compression": "^1.7.1",
     "cookie-parser": "~1.4.3",
@@ -17,6 +18,7 @@
     "express": "~4.15.5",
     "hbs": "~4.0.1",
     "mongoose": "^5.0.0-rc0",
+    "mongoose-keywords": "^0.3.2",
     "morgan": "~1.9.0",
     "serve-favicon": "~2.4.5"
   },

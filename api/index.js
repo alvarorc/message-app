@@ -1,9 +1,9 @@
 const Router = require('express').Router;
-// const user = require('./user');
+const userController = require('./user/controller');
 
 
 const router = new Router();
 
-// router.use('/users', user); set the api
+router.use('/users', userController);
 
 module.exports = router;

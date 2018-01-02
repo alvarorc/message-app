@@ -5,29 +5,26 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const mongoose = require('./services/mongoose');
-
-// to remove
-const index = require('./routes/index');
-const users = require('./routes/users');
+const api = require('./api');
+const healthCheck = require('./services/utils/healthCheck');
 
 const app = express();
 
 /**
  * Connect to db
  */
-const isDeveloper = process.env.NODE_ENV === 'development';
+const isDevelopment = process.env.NODE_ENV === 'development';
 const DB_URI = process.env.MONGODB_URI || 'mongodb://localhost/message-app';
 
-mongoose.connect(DB_URI);
 mongoose.Promise = global.Promise;
-mongoose.set('debug', isDeveloper);
+mongoose.set('debug', isDevelopment);
+// connect to mongodb
+mongoose.connect(DB_URI);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -35,12 +32,21 @@ app.use(compression());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-app.use('/users', users);
+app.use('/api', api);
+
+app.use(
+  '/healthcheck',
+  healthCheck()
+);
+
+// not found route handler
+app.get('*', (req, res, next) => {
+  setImmediate(() => next(new Error('Not Found')));
+});
 
 // development error handler
 // will print stacktrace
-if (isDeveloper) {
+if (isDevelopment) {
   app.use((err, req, res) => {
     res.status(err.status || 500);
     res.render('error', {
