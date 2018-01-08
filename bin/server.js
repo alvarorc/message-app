@@ -79,9 +79,35 @@ function onListening() {
   debug(`Listening on ${bind}`);
 }
 
+/*
+ * Shutdown function to handle SIGTERM / SIGINT from docker container
+ */
+function Shutdown() {
+  server.close(err => {
+    if (err) {
+      debug(`There was an error shuting down the server ${err}`);
+      process.exitCode = 1;
+    }
+    process.exit(); // eslint-disable-line
+  });
+}
+
 /**
  * Listen on provided port, on all network interfaces.
  */
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+
+// quit on ctrl-c when running docker in terminal
+process.on('SIGINT', function onSigint () {
+	debug('Got SIGINT (aka ctrl-c in docker). Graceful Shutdown ', new Date().toISOString());
+  Shutdown();
+});
+
+// quit properly on docker stop
+process.on('SIGTERM', function onSigterm () {
+  debug('Got SIGTERM (docker container stop). Graceful Shutdown ', new Date().toISOString());
+  Shutdown();
+});
